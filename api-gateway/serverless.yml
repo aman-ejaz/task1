@@ -1,0 +1,45 @@
+service: projectApiGateway
+
+plugins:
+  - serverless-apigw-binary
+
+frameworkVersion: ">=1.21.0 <2.0.0"
+
+custom:
+  secrets: ${file(../backend-secrets.yml)}
+  apigwBinary:
+    types:
+      - "multipart/form-data"
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  timeout: 30
+  stage: ${opt:stage}
+  region: ${self:custom.secrets.REGION.${self:provider.stage}, 'us-east-2'}
+
+functions:
+  projectApiGateway:
+    name: ${opt:stage}-projectApiGateway
+    handler: index.handler
+    description: Project Micro-service API to create API Gateway
+    environment:
+      RELEASE_NUMBER: '${self:custom.secrets.RELEASE_NUMBER.${self:provider.stage}}'
+      BUILD_NUMBER: '${self:custom.secrets.BUILD_NUMBER.${self:provider.stage}}'
+    events:
+      - http:
+          method: get
+          path: /version
+          cors: true
+
+resources:
+  Resources:
+    GatewayResponse:
+      Type: "AWS::ApiGateway::GatewayResponse"
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: "ApiGatewayRestApi"

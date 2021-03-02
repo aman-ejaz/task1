@@ -1,0 +1,20 @@
+{
+  "name": "projectapigateway",
+  "version": "1.0.0",
+  "description": "Project Micro-service API to create API Gateway",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "serverless-http": "^2.3.0"
+  },
+  "devDependencies": {
+    "serverless-apigw-binary": "^0.4.4"
+  }
+}

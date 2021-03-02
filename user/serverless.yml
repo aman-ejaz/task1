@@ -1,0 +1,51 @@
+service: user
+
+frameworkVersion: ">=1.21.0 <2.0.0"
+
+custom:
+  secrets: ${file(../backend-secrets.yml)}
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  timeout: 30
+  stage: ${opt:stage}
+  region: ${self:custom.secrets.REGION.${self:provider.stage}, 'us-east-2'}
+  apiGateway:
+    restApiId: "${self:custom.secrets.RESTAPIID.${self:provider.stage}}"
+    restApiRootResourceId: "${self:custom.secrets.RESTAPIROOTRESOURCEID.${self:provider.stage}}"
+
+functions:
+  user:
+    handler: index.handler
+    name: ${opt:stage}-user
+    description: Micro-service API for managing Users in application
+    environment:
+      DB_USERNAME: "${self:custom.secrets.DB_USERNAME.${self:provider.stage}}"
+      DB_HOST: "${self:custom.secrets.DB_HOST.${self:provider.stage}}"
+      DB_PASSWORD: "${self:custom.secrets.DB_PASSWORD.${self:provider.stage}}"
+      DB_NAME: "${self:custom.secrets.DB_NAME.${self:provider.stage}}"
+      JWTSECRET: '${self:custom.secrets.JWTSECRET.${self:provider.stage}}'
+    events:
+      - http:
+          method: post
+          path: login
+          cors: true
+      - http:
+          method: get
+          path: user/{id}
+          cors: true
+      - http:
+          method: get
+          path: users
+          cors: true
+      - http:
+          method: post
+          path: user
+          cors: true
+      - http:
+          method: put
+          path: user
+          cors: true
+
+
